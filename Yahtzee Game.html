@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yahtzee</title>
+</head>
+<style>
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    .score {
+        text-align: center;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 20px;
+        border: 3px solid rgb(0, 0, 0);
+        border-radius: 10px;
+    }
+
+    #Yahtzee {
+        text-align: center;
+    }
+
+    .Yahtzee {
+        text-align: center;
+    }
+
+    h1 {
+        text-align: center;
+        font-family: 'Courier New', Courier, monospace;
+    }
+
+    body {
+        border: 5px solid rgb(255, 255, 255);
+        border-radius: 50px;
+        box-shadow: 12px 5px 5px 1px rgb(0, 0, 0);
+        padding: 20px;
+        margin: auto;
+        max-width: 500px;
+        height: 500px;
+    }
+
+    .button {
+        background-color: rgb(1, 162, 1);
+        color: rgb(255, 255, 255);
+        padding: 10px;
+        border-radius: 5px;
+        border-style: double;
+        cursor: pointer;
+        border-color: rgb(1, 162, 1);
+        font-size: 16px;
+        margin: 15px;
+    }
+
+    .spinning {
+        animation: spin 0.4s ease-in-out;
+    }
+
+    #title {
+        text-align: center;
+    }
+</style>
+
+<body>
+    <h1 class="h1">Yahtzee</h1>
+
+    <button id="click" class="button">Roll Dice</button>
+    <button id="scoreboard" class="button">Show score stats</button>
+
+    <div id="opnieuw" class="Yahtzee"></div>
+    <img id="dobbelsteen1" class="dobbelsteen" src="" width="50" alt="">
+    <img id="dobbelsteen2" class="dobbelsteen" src="" width="50" alt="">
+    <img id="dobbelsteen3" class="dobbelsteen" src="" width="50" alt="">
+    <img id="dobbelsteen4" class="dobbelsteen" src="" width="50" alt="">
+    <img id="dobbelsteen5" class="dobbelsteen" src="" width="50" alt="">
+    <p class="score">Score Board</p>
+    <div id="score" class="scoor"></div>
+    <div id="title" class="scoor"></div>
+
+    <script>
+        let vasthoud = [false, false, false, false, false];
+        let dobbel = [1, 2, 3, 4, 5];
+
+        const diceElements = document.querySelectorAll(".dobbelsteen");
+        for (let index = 0; index < diceElements.length; index++) {
+            const element = diceElements[index];
+            element.addEventListener("click", function () {
+                hold(index, element);
+            });
+        }
+
+        function hold(index, element) { // hou de dices vast
+            vasthoud[index] = !vasthoud[index];
+
+            if (vasthoud[index]) {
+                element.style.border = "2px solid red";
+            } else {
+                element.style.border = "none";
+            }
+        }
+
+        const click = document.getElementById("click");
+        let number = 0;
+        let opnieuw = "Je hebt al 3 keer gespeeld";
+
+        click.addEventListener('click', () => {
+            if (number >= 99999) {
+                document.getElementById("opnieuw").innerHTML = opnieuw;
+                return;
+            }
+            number++;
+
+            randomizeDobbelSteen();
+            image();
+
+            function randomizeDobbelSteen() { // random number voor dices
+
+                let randomGetal = Math.floor(Math.random() * 6) + 1;
+                // dobbel.sort(function () { return 0.5 - Math.random() });
+                for (let i = 0; i < 5; i++) {
+                    if (!vasthoud[i]) {
+                        let randomGetal = Math.floor(Math.random() * 6) + 1;
+                        dobbel[i] = randomGetal;
+                    }
+                }
+
+            }
+
+            function image() { // images voor de dices
+                for (let i = 0; i < 5; i++) {
+                    let dice = dobbel[i]
+                    let diceElement = document.getElementById(`dobbelsteen${i + 1}`)
+                    diceElement.classList.add("spinning")
+                    setTimeout(() => diceElement.classList.remove("spinning"), 500)
+                    diceElement.src = `https://www.rekenen.nl/media/questions/dobbelsteen-${dice}.png`
+                }
+            }
+        });
+
+        document.getElementById("dobbelsteen1").addEventListener("click", () => {
+            console.log("Dobbelsteen 1 is geklikt!");
+            console.log(vasthoud[0]);
+        });
+
+        document.getElementById("dobbelsteen2").addEventListener("click", () => {
+            console.log("Dobbelsteen 2 is geklikt!");
+        });
+
+        document.getElementById("dobbelsteen3").addEventListener("click", () => {
+            console.log("Dobbelsteen 3 is geklikt!");
+        });
+
+        document.getElementById("dobbelsteen4").addEventListener("click", () => {
+            console.log("Dobbelsteen 4 is geklikt!");
+        });
+
+        document.getElementById("dobbelsteen5").addEventListener("click", () => {
+            console.log("Dobbelsteen 5 is geklikt!");
+        });
+
+        const board = document.getElementById("scoreboard"); // laat de scoreboard zien
+        board.addEventListener('click', () => {
+            console.log("showing Scoreboard");
+            Board();
+        });
+
+        function Board() {
+            let value = "";
+            let title = "";
+            let resultaat = "";
+            let counts = []; 
+            let ThreeHouse = false; // deze code checkt of 3 dobbelstenen het zelfde true of false is
+            let TwoHouse = false;
+            for (let i = 1; i <= 6; i++) {
+                let count = telAantalKerenAantalOgen(i);
+                let optellen = i * count; // dit rekent de totale score
+                counts[i - 1] = count;
+                value += `Aantal ${i}'s: ${count} / Score: ${optellen}<br>`;
+                if (count == 3) {
+                    title += `Three of a kind<br>`;
+                }
+                else if (count == 4) {
+                    title += `Carré `;
+                }
+                else if (count == 5) {
+                    title += `Yahtzee / Score: 50`;
+                }
+                for (let i = 0; i < 6; i++) { 
+                    if (counts[i] == 3) {
+                        ThreeHouse = true;
+                    }
+                    if (counts[i] == 2) {
+                        TwoHouse = true;
+                    }
+                }
+                if (ThreeHouse && TwoHouse) {
+                    title += `Full House / Score: 25<br>`;
+                }
+            }
+            if (counts[0] == 1 && counts[1] == 1 && counts[2] == 1 && counts[3] == 1 && counts[4] == 1) {
+                title += `Big Street / Score: 40<br>`;
+            }
+            if (counts[0] == 1 && counts[1] == 1 && counts[2] == 1 && counts[3] == 1) {
+                title += `Kleine Street / Score: 30<br>`;
+            }
+            document.getElementById("score").innerHTML = value;
+            document.getElementById("title").innerHTML = title;
+        }
+
+
+
+        function telAantalKerenAantalOgen(x) { // aantalen dices
+            let teller = 0;
+            for (let index = 0; index < dobbel.length; index++) {
+                if (dobbel[index] == x) {
+                    teller++;
+                };
+
+            }
+            return teller;
+        }
+    </script>
+
+</body>
+
+</html>
